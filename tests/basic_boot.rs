@@ -5,6 +5,7 @@
 #![reexport_test_harness_main = "test_main"]
 
 use core::panic::PanicInfo;
+use bootloader::{entry_point, BootInfo};
 use z_os::{println, hlt_loop};
 
 #[panic_handler]
@@ -12,11 +13,13 @@ fn panic(info: &PanicInfo) -> ! {
     z_os::test_panic_handler(info)
 }
 
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
+entry_point!(test_kernel_main);
+
+fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
     test_main();
     hlt_loop();
 }
+
 
 #[test_case]
 fn test_println() {

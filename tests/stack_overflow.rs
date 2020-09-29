@@ -3,6 +3,7 @@
 #![feature(abi_x86_interrupt)]
 
 use core::panic::PanicInfo;
+use bootloader::{entry_point, BootInfo};
 use z_os::{serial_println, serial_print, exit_qemu, QemuExitCode};
 use lazy_static::lazy_static;
 use x86_64::structures::idt::InterruptDescriptorTable;
@@ -41,16 +42,14 @@ fn stack_overflow() {
     volatile::Volatile::new(0).read(); // prevent tail recursion optimizations
 }
 
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
-    serial_print!("stack_overflow::stack_overflow...\t");
+entry_point!(test_kernel_main);
 
+fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
+    serial_print!("stack_overflow::stack_overflow...\t");
     z_os::gdt::init();
     init_test_idt();
 
-    // trigger a stack overflow
     stack_overflow();
-
     panic!("Execution continued after stack overflow");
 }
 

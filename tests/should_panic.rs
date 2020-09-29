@@ -2,6 +2,7 @@
 #![no_main]
 
 use core::panic::PanicInfo;
+use bootloader::{entry_point, BootInfo};
 use z_os::{QemuExitCode, exit_qemu, serial_println, serial_print, hlt_loop};
 
 #[panic_handler]
@@ -16,8 +17,9 @@ fn should_fail() {
     assert_eq!(0, 1);
 }
 
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
+entry_point!(test_kernel_main);
+
+fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
     should_fail();
     serial_println!("[test did not panic]");
     exit_qemu(QemuExitCode::Failed);
