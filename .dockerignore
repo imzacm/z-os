@@ -2,3 +2,4 @@ target/
 .gitignore/
 Cargo.lock/
 docker-compose.yml
+scripts/

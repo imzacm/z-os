@@ -41,11 +41,12 @@ CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
 FROM exec-env as runner
 RUN mkdir -p /usr/local/z_os
 WORKDIR /usr/local/z_os
-COPY --from=build-workspace /app/target/x86_64-z_os/debug/bootimage-z_os.bin /app/qemu.sh /usr/local/z_os/
-RUN apk update && apk add qemu-system-x86_64 qemu-ui-gtk xterm && \
-  echo '[program:xterm]' >> /etc/supervisord.conf && \
-  echo 'command=xterm' >> /etc/supervisord.conf && \
-  echo 'autorestart=true' >> /etc/supervisord.conf && \
+COPY --from=build-workspace /app/target/x86_64-z_os/debug/bootimage-z_os.bin /usr/local/z_os/
+
+ENV QEMU=qemu-system-x86_64 \
+  QEMU_FLAGS="-drive format=raw,file=/usr/local/z_os/bootimage-z_os.bin --full-screen"
+
+RUN apk update && apk add qemu-system-x86_64 qemu-ui-gtk && \
   echo '[program:z_os]' >> /etc/supervisord.conf && \
-  echo 'command=/usr/local/z_os/qemu.sh /usr/local/z_os/bootimage-z_os.bin' >> /etc/supervisord.conf && \
+  echo "command=$QEMU $QEMU_FLAGS" >> /etc/supervisord.conf && \
   echo 'autorestart=true' >> /etc/supervisord.conf
