@@ -42,9 +42,9 @@ fn stack_overflow() {
     volatile::Volatile::new(0).read(); // prevent tail recursion optimizations
 }
 
-entry_point!(test_kernel_main);
+entry_point!(main);
 
-fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
+fn main(_boot_info: &'static BootInfo) -> ! {
     serial_print!("stack_overflow::stack_overflow...\t");
     z_os::gdt::init();
     init_test_idt();

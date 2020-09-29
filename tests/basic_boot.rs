@@ -13,9 +13,9 @@ fn panic(info: &PanicInfo) -> ! {
     z_os::test_panic_handler(info)
 }
 
-entry_point!(test_kernel_main);
+entry_point!(main);
 
-fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
+fn main(_boot_info: &'static BootInfo) -> ! {
     test_main();
     hlt_loop();
 }

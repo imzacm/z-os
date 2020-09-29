@@ -17,9 +17,9 @@ fn should_fail() {
     assert_eq!(0, 1);
 }
 
-entry_point!(test_kernel_main);
+entry_point!(main);
 
-fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
+fn main(_boot_info: &'static BootInfo) -> ! {
     should_fail();
     serial_println!("[test did not panic]");
     exit_qemu(QemuExitCode::Failed);
