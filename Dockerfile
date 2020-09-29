@@ -11,7 +11,7 @@ ADD . /app
 
 RUN apt-get update && \
   apt-get install -y qemu-system && \
-  cargo test && \
+  scripts/test.sh && \
   cargo bootimage
 
 FROM alpine:edge as exec-env

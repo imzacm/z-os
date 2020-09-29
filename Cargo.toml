@@ -4,6 +4,13 @@ version = "0.1.0"
 authors = ["Zac McChesney <imzacm@gmail.com>"]
 edition = "2018"
 
+[features]
+default = ["alloc_linked_crate"]
+alloc_linked_crate = []
+alloc_linked_internal = []
+alloc_bump_internal = []
+alloc_fixed_internal = []
+
 [package.metadata.bootimage]
 test-args = [
     "-device", "isa-debug-exit,iobase=0xf4,iosize=0x04", "-serial", "stdio",
