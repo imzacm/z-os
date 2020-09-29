@@ -11,7 +11,7 @@ use z_os::println;
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    z_os::hlt_loop();
 }
 
 #[cfg(test)]
@@ -30,7 +30,7 @@ pub extern "C" fn _start() -> ! {
         test_main();
 
     println!("Still here :)");
-    loop {}
+    z_os::hlt_loop();
 }
 
 #[test_case]

@@ -5,7 +5,7 @@
 #![reexport_test_harness_main = "test_main"]
 
 use core::panic::PanicInfo;
-use z_os::println;
+use z_os::{println, hlt_loop};
 
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
@@ -15,7 +15,7 @@ fn panic(info: &PanicInfo) -> ! {
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
     test_main();
-    loop {}
+    hlt_loop();
 }
 
 #[test_case]
