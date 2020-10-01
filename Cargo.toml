@@ -11,6 +11,13 @@ alloc_linked_internal = []
 alloc_bump_internal = []
 alloc_fixed_internal = []
 
+[[bin]]
+name = "z_os"
+path = "src/main/main.rs"
+
+[lib]
+path = "src/lib/lib.rs"
+
 [package.metadata.bootimage]
 test-args = [
     "-device", "isa-debug-exit,iobase=0xf4,iosize=0x04", "-serial", "stdio",
