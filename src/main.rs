@@ -8,8 +8,12 @@ extern crate alloc;
 
 use core::panic::PanicInfo;
 use bootloader::{BootInfo, entry_point};
-use z_os::println;
-use z_os::task::{Task, executor::Executor, keyboard};
+use z_os::{println, ui};
+use z_os::drivers::display::vga::{VgaDisplayDriver, Color, VGA_WIDTH, VGA_HEIGHT};
+use z_os::drivers::keyboard::ps2::Ps2Keyboard;
+use z_os::drivers::text_cursor::TextModeCursor;
+use z_os::task::executor::Executor;
+use z_os::task::Task;
 
 #[cfg(not(test))]
 #[panic_handler]
@@ -24,23 +28,12 @@ fn panic(info: &PanicInfo) -> ! {
     z_os::test_panic_handler(info)
 }
 
-async fn async_number() -> u32 {
-    42
-}
-
-async fn example_task() {
-    let number = async_number().await;
-    println!("async number: {}", number);
-}
-
 entry_point!(kernel_main);
 
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
     use z_os::memory;
     use z_os::allocator;
     use x86_64::VirtAddr;
-
-    println!("Hello World{}", "!");
 
     z_os::init();
 
@@ -56,10 +49,13 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     #[cfg(test)]
         test_main();
 
+    let mut text_cursor = TextModeCursor::new(VGA_WIDTH, VGA_HEIGHT);
+    let mut vga = VgaDisplayDriver::new(Color::White, Color::Black, &mut text_cursor);
+    let mut ui = ui::user_interface::UserInterface::new(&mut vga).unwrap();
+
     let mut executor = Executor::new();
-    executor.spawn(Task::new(example_task()));
-    executor.spawn(Task::new(keyboard::print_keypresses()));
-    executor.run();
+    executor.spawn(Task::new(ui.run()));
+    executor.run()
 }
 
 #[test_case]

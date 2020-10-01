@@ -4,6 +4,7 @@ use core::task::{Waker, Context, Poll};
 use crossbeam_queue::ArrayQueue;
 use alloc::task::Wake;
 
+#[derive(Debug)]
 struct TaskWaker {
     task_id: TaskId,
     task_queue: Arc<ArrayQueue<TaskId>>,
@@ -34,13 +35,14 @@ impl Wake for TaskWaker {
     }
 }
 
-pub struct Executor {
-    tasks: BTreeMap<TaskId, Task>,
+#[derive(Debug)]
+pub struct Executor<'a> {
+    tasks: BTreeMap<TaskId, Task<'a>>,
     task_queue: Arc<ArrayQueue<TaskId>>,
     waker_cache: BTreeMap<TaskId, Waker>,
 }
 
-impl Executor {
+impl<'a> Executor<'a> {
     pub fn new() -> Self {
         Executor {
             tasks: BTreeMap::new(),
@@ -49,7 +51,7 @@ impl Executor {
         }
     }
 
-    pub fn spawn(&mut self, task: Task) {
+    pub fn spawn(&mut self, task: Task<'a>) {
         let task_id = task.id;
         if self.tasks.insert(task.id, task).is_some() {
             panic!("task with same ID already in tasks");

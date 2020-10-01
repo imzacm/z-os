@@ -78,6 +78,14 @@ impl Writer {
         }
     }
 
+    pub fn write_byte_at(&mut self, row: usize, column: usize, byte: u8) {
+        let color_code = self.color_code;
+        self.buffer.chars[row][column].write(ScreenChar {
+            ascii_character: byte,
+            color_code
+        })
+    }
+
     fn new_line(&mut self) {
         for row in 1..BUFFER_HEIGHT {
             for col in 0..BUFFER_WIDTH {
@@ -110,6 +118,19 @@ impl Writer {
                 // not part of printable ASCII range
                 _ => self.write_byte(0xfe),
             }
+        }
+    }
+
+    pub fn write_string_at(&mut self, row: usize, column: usize, str: &str) {
+        let mut count = 0;
+        for byte in str.bytes() {
+            match byte {
+                // printable ASCII byte or newline
+                0x20..=0x7e | b'\n' => self.write_byte_at(row, column + count, byte),
+                // not part of printable ASCII range
+                _ => self.write_byte_at(row, column + count, 0xfe),
+            };
+            count += 1;
         }
     }
 }
@@ -147,6 +168,14 @@ pub fn _print(args: fmt::Arguments) {
 
     interrupts::without_interrupts(|| {
         WRITER.lock().write_fmt(args).unwrap();
+    });
+}
+
+pub fn print_string_at(row: usize, column: usize, str: &str) {
+    use x86_64::instructions::interrupts;
+
+    interrupts::without_interrupts(|| {
+        WRITER.lock().write_string_at(row, column, str);
     });
 }
 

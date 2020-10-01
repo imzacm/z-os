@@ -17,8 +17,10 @@ use bootloader::{entry_point, BootInfo};
 extern crate rlibc;
 extern crate alloc;
 
+pub mod result;
+
 pub mod serial;
-pub mod vga_buffer;
+pub mod drivers;
 
 pub mod interrupts;
 pub mod gdt;
@@ -27,6 +29,8 @@ pub mod memory;
 pub mod allocator;
 
 pub mod task;
+
+pub mod ui;
 
 pub fn init() {
     gdt::init();
@@ -39,6 +43,28 @@ pub fn hlt_loop() -> ! {
     loop {
         x86_64::instructions::hlt();
     }
+}
+
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => ($crate::_print(format_args!($($arg)*)));
+}
+
+#[macro_export]
+macro_rules! println {
+    () => ($crate::print!("\n"));
+    ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
+}
+
+#[doc(hidden)]
+pub fn _print(args: core::fmt::Arguments) {
+    use core::fmt::Write;
+    use x86_64::instructions::interrupts;
+    use ui::log::push_log;
+
+    interrupts::without_interrupts(|| {
+        push_log(alloc::format!("{:?}", args))
+    });
 }
 
 #[alloc_error_handler]

@@ -11,6 +11,9 @@ alloc_linked_internal = []
 alloc_bump_internal = []
 alloc_fixed_internal = []
 
+[lib]
+path = "src/lib/mod.rs"
+
 [package.metadata.bootimage]
 test-args = [
     "-device", "isa-debug-exit,iobase=0xf4,iosize=0x04", "-serial", "stdio",
@@ -37,6 +40,9 @@ uart_16550 = "0.2.0"
 pic8259_simple = "0.2.0"
 pc-keyboard = "0.5.0"
 linked_list_allocator = "0.8.0"
+dia-semver = "8.0.1"
+ansi_rgb = "0.2.0"
+generic-array = "0.14.4"
 
 [dependencies.lazy_static]
 version = "1.0"

@@ -1,10 +1,8 @@
-use core::{future::Future, pin::Pin};
+use core::{future::Future, pin::Pin, fmt};
 use core::task::{Context, Poll};
 use core::sync::atomic::{AtomicU64, Ordering};
 use alloc::boxed::Box;
 
-pub mod simple_executor;
-pub mod keyboard;
 pub mod executor;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -17,13 +15,19 @@ impl TaskId {
     }
 }
 
-pub struct Task {
+pub struct Task<'a> {
     id: TaskId,
-    future: Pin<Box<dyn Future<Output=()>>>,
+    future: Pin<Box<dyn Future<Output=()> + 'a>>,
 }
 
-impl Task {
-    pub fn new(future: impl Future<Output=()> + 'static) -> Task {
+impl<'a> fmt::Debug for Task<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Task id:{:?}", self.id)
+    }
+}
+
+impl<'a> Task<'a> {
+    pub fn new(future: impl Future<Output=()> + 'a) -> Task<'a> {
         Task {
             id: TaskId::new(),
             future: Box::pin(future),
