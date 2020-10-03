@@ -16,7 +16,7 @@ fn main(boot_info: &'static BootInfo) -> ! {
     use z_os::memory::{self, BootInfoFrameAllocator};
     use x86_64::VirtAddr;
 
-    z_os::init();
+    z_os::init(None);
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
     let mut mapper = unsafe { memory::init(phys_mem_offset) };
     let mut frame_allocator = unsafe {

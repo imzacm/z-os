@@ -1,23 +1,16 @@
 # Z-OS Attempt 7
 
-## Usage
+## Structure
+The project is split into multiple crates to keep everything separated.
 
-- Build: ```cargo build```
-- Run: ```cargo run```
-- Test: ```scripts/test.sh```
-- Setup git hooks: ```scripts/git_hooks.sh```
-- Build docker: ```docker build .```
-- Launch in docker (go to [http://localhost:8080/vnc.html](http://localhost:8080/vnc.html) to view and interact): ```docker-compose up```
+### Kernel
+The kernel crate is the entry point to the kernel, it handles setup, panics, etc.
 
-## TODO
-[From here](https://os.phil-opp.com/async-await/#possible-extensions):
+### Kernel lib
+The kernel lib crate is the "behind the scenes" part of the project. It handles any direct communication with any hardware.
 
-- Task scheduling
-- Task spawning
-- Threads
-- Load balancing tasks
+### Driver lib
+The driver lib crate exposes a driver interface to the kernel. The reason this is in a separate crate is to clearly separate between interrupts, etc and the actual "user" facing interface.
 
-Not from the guide:
-
-- On screen clock
-- Text UI (login screen, basic CLI)
+### PC keyboard
+PC keyboard is pulled in as a submodule and is included in the workspace. The only reason it's a part of the project is to expose ```keyboard.modifiers``` and add the ```Debug``` trait.

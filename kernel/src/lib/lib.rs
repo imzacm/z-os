@@ -8,16 +8,23 @@
 #![feature(const_mut_refs)]
 #![feature(const_in_array_repeat_expressions)]
 #![feature(wake_trait)]
+#![feature(raw)]
+#![feature(generators, generator_trait)]
 
 use core::panic::PanicInfo;
+use bootloader::BootInfo;
+use x86_64::VirtAddr;
 
 #[cfg(test)]
-use bootloader::{entry_point, BootInfo};
+use bootloader::entry_point;
 
 extern crate rlibc;
 extern crate alloc;
 
 pub mod serial;
+
+pub mod debug;
+
 pub mod vga_buffer;
 
 pub mod interrupts;
@@ -28,11 +35,22 @@ pub mod allocator;
 
 pub mod task;
 
-pub fn init() {
-    gdt::init();
-    interrupts::init_idt();
-    unsafe { interrupts::PICS.lock().initialize() };
-    x86_64::instructions::interrupts::enable();
+pub mod drivers;
+
+pub fn init(boot_info: Option<&'static BootInfo>) {
+    gdt::init_gdt();
+    interrupts::init_interrupts();
+
+    if let Some(boot_info) = boot_info {
+        let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+        let mut mapper = unsafe { memory::init(phys_mem_offset) };
+        let mut frame_allocator = unsafe {
+            memory::BootInfoFrameAllocator::init(&boot_info.memory_map)
+        };
+
+        allocator::init_heap(&mut mapper, &mut frame_allocator)
+            .expect("heap initialization failed");
+    }
 }
 
 pub fn hlt_loop() -> ! {
@@ -96,8 +114,8 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
 entry_point!(test_kernel_main);
 
 #[cfg(test)]
-fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
-    init();
+fn test_kernel_main(boot_info: &'static BootInfo) -> ! {
+    init(None);
     test_main();
     hlt_loop();
 }

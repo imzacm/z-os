@@ -11,6 +11,8 @@ use bootloader::{BootInfo, entry_point};
 use z_os::println;
 use z_os::task::{Task, executor::Executor, keyboard};
 
+mod ui;
+
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
@@ -42,24 +44,12 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 
     println!("Hello World{}", "!");
 
-    z_os::init();
-
-    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
-    let mut mapper = unsafe { memory::init(phys_mem_offset) };
-    let mut frame_allocator = unsafe {
-        memory::BootInfoFrameAllocator::init(&boot_info.memory_map)
-    };
-
-    allocator::init_heap(&mut mapper, &mut frame_allocator)
-        .expect("heap initialization failed");
+    z_os::init(Some(boot_info));
 
     #[cfg(test)]
         test_main();
 
-    let mut executor = Executor::new();
-    executor.spawn(Task::new(example_task()));
-    executor.spawn(Task::new(keyboard::print_keypresses()));
-    executor.run();
+    ui::enter_ui()
 }
 
 #[test_case]

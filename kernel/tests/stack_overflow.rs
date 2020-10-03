@@ -15,7 +15,7 @@ lazy_static! {
         unsafe {
             idt.double_fault
                 .set_handler_fn(test_double_fault_handler)
-                .set_stack_index(z_os::gdt::DOUBLE_FAULT_IST_INDEX);
+                .set_stack_index(z_os::gdt::tss::DOUBLE_FAULT_IST_INDEX);
         }
 
         idt
@@ -46,7 +46,7 @@ entry_point!(main);
 
 fn main(_boot_info: &'static BootInfo) -> ! {
     serial_print!("stack_overflow::stack_overflow...\t");
-    z_os::gdt::init();
+    z_os::gdt::init_gdt();
     init_test_idt();
 
     stack_overflow();
