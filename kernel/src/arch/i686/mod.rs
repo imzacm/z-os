@@ -1,6 +1,11 @@
+mod io;
 mod gdt;
 mod idt;
 mod isrs;
 mod tty;
 
-pub fn init() {}
+pub use tty::{print, println};
+
+pub fn init() {
+    tty::init_tty();
+}
