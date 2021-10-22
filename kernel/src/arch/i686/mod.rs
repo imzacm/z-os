@@ -4,7 +4,7 @@ mod idt;
 mod isrs;
 mod tty;
 
-pub use tty::{print, println};
+pub use tty::print;
 
 pub fn init() {
     tty::init_tty();

@@ -22,10 +22,14 @@ impl Cursor {
             return;
         }
         self.enabled = true;
-        // unsafe {
-        //     outb(Self::COMMAND_PORT, 0x0A);
-        //     outb(Self::DATA_PORT, (inb(Self::DATA_PORT) | ));
-        // }
+        unsafe {
+            outb(Self::COMMAND_PORT, 0x09);
+            outb(Self::DATA_PORT, 0x0F);
+            outb(Self::COMMAND_PORT, 0x0B);
+            outb(Self::DATA_PORT, 0x0F);
+            outb(Self::COMMAND_PORT, 0x0A);
+            outb(Self::DATA_PORT, 0x0E);
+        }
     }
 
     fn disable(&mut self) {
@@ -33,6 +37,10 @@ impl Cursor {
             return;
         }
         self.enabled = false;
+        unsafe {
+            outb(Self::COMMAND_PORT, 0x0A);
+            outb(Self::DATA_PORT, 0x20);
+        }
     }
 
     /// Update the screen cursor with self.column and self.row
@@ -41,12 +49,12 @@ impl Cursor {
         if !self.enabled {
             return;
         }
-        let position = (self.column * 80 + self.row) as u16;
+        let position = (self.row * WIDTH + self.column) as u16;
         unsafe {
-            outb(Self::COMMAND_PORT, 14);
-            outb(Self::DATA_PORT, (position >> 8) as u8);
-            outb(Self::COMMAND_PORT, 15);
-            outb(Self::DATA_PORT, position as u8);
+            outb(Self::COMMAND_PORT, 0x0F);
+            outb(Self::DATA_PORT, (position & 0xFF) as u8);
+            outb(Self::COMMAND_PORT, 0x0E);
+            outb(Self::DATA_PORT, ((position >> 8) & 0xFF) as u8);
         }
     }
 
@@ -140,16 +148,29 @@ impl Tty {
             TTY = Some(Self {
                 cursor,
                 colour: ColourCode::new(Colour::White, Colour::Black),
-                buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
+                buffer: &mut *(0xb8000 as *mut Buffer),
             });
             return TTY.as_mut().unwrap();
         }
     }
 
     fn new_line(&mut self, update_cursor: bool) {
-        let row = self.cursor.row() + 1;
+        let mut row = self.cursor.row() + 1;
         if row >= HEIGHT {
-            todo!("Scroll");
+            for row in 0..HEIGHT - 1 {
+                for column in 0..WIDTH {
+                    let char = self.buffer.rows[row + 1][column];
+                    unsafe { core::ptr::write_volatile(&mut self.buffer.rows[row][column], char) };
+                }
+            }
+            row -= 1;
+            let blank_char = ScreenChar {
+                character: b' ',
+                colour: self.colour,
+            };
+            for column in 0..WIDTH {
+                unsafe { core::ptr::write_volatile(&mut self.buffer.rows[row][column], blank_char) };
+            }
         }
         self.cursor.set_point(0, row);
         if update_cursor {
@@ -163,12 +184,11 @@ impl Tty {
             return;
         }
         let (column, row) = self.cursor.point();
-        unsafe {
-            core::ptr::write_volatile(&mut self.buffer.rows[row][column], ScreenChar {
-                character: byte,
-                colour: self.colour,
-            });
-        }
+        let char = ScreenChar {
+            character: byte,
+            colour: self.colour,
+        };
+        unsafe { core::ptr::write_volatile(&mut self.buffer.rows[row][column], char) };
         self.cursor.set_column(column + 1);
         if self.cursor.column >= WIDTH {
             self.new_line(false);
@@ -193,10 +213,4 @@ pub fn init_tty() {
 
 pub fn print(s: &str) {
     Tty::new().write_str(s);
-}
-
-pub fn println(s: &str) {
-    let tty = Tty::new();
-    tty.write_str(s);
-    tty.write_byte(b'\n');
 }

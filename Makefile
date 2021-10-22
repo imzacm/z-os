@@ -2,7 +2,7 @@ include ./config.mk
 
 DIST_ISO := $(DIST_DIR)/z-os.iso
 
-.PHONY: all clean iso run
+.PHONY: all clean iso run debug
 
 all: iso
 
@@ -13,6 +13,9 @@ iso: $(DIST_ISO)
 
 run: iso
 	@qemu-system-i386 -cdrom $(DIST_ISO)
+
+debug: iso
+	@qemu-system-i386 -s -S -cdrom $(DIST_ISO)
 
 $(DIST_DIR):
 	@mkdir -p $@
