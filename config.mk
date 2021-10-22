@@ -46,8 +46,8 @@ ASM_FLAGS := -felf32
 # Flags passed to $(AS)
 AS_FLAGS :=
 # Flags passed to $(CC)
-CC_FLAGS := -O2 -g -ffreestanding -Wall -Wextra -nostdlib -m32
+CC_FLAGS := -O2 -g -ffreestanding -Wall -Wextra -nostdlib -m32 -c
 # Flags passed to $(CXX)
 CXX_FLAGS := -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti
 # Flags passed to $(LD)
-LD_FLAGS := $(CC_FLAGS)
+LD_FLAGS := -O2 -g -ffreestanding -Wall -Wextra -nostdlib -m32

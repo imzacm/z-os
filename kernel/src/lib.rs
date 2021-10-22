@@ -5,7 +5,6 @@
 #![no_std]
 
 use core::panic::PanicInfo;
-use crate::arch::print;
 
 mod hardware;
 mod syscalls;
