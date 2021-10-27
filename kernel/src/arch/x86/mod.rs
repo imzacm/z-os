@@ -52,11 +52,8 @@ pub(in crate::arch) fn get_tty() -> impl core::fmt::Write {
     Writer
 }
 
-pub fn idle() -> ! {
-    unsafe {
-        asm!("hlt");
-        core::intrinsics::unreachable();
-    }
+pub fn idle() {
+    unsafe { asm!("hlt", options(nomem, nostack, preserves_flags)) };
 }
 
 pub fn interrupts_enabled() -> bool {

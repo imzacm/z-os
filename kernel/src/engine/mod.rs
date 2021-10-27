@@ -1,5 +1,7 @@
+mod exceptions;
 mod interrupts;
 
-pub use interrupts::{Exception, Interrupt, handle_exception, handle_interrupt};
+pub use exceptions::{Exception, handle_exception};
+pub use interrupts::{Interrupt, handle_interrupt};
 
 pub fn poll() {}

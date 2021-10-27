@@ -37,6 +37,9 @@ extern "C" fn kernel_main() -> ! {
 #[panic_handler]
 fn panic_handler(info: &PanicInfo) -> ! {
     kprintln!("Kernel panic: {}", info);
+    // Manually enter a halt loop because the system must not continue running
     arch::disable_interrupts();
-    arch::idle();
+    loop {
+        arch::idle();
+    }
 }

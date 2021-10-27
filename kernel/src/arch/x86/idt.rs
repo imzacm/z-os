@@ -45,6 +45,10 @@ pub struct InterruptStackFrame {
     /// IRQs push this as the IRQ index e.g. PIT timer will be 0.
     pub interrupt_num: u32,
     pub error_code: u32,
+    pub eflags: u32,
+    pub code_selector: u32,
+    /// EIP
+    pub instruction_pointer: u32,
 }
 
 #[allow(dead_code)]
@@ -163,17 +167,16 @@ pub unsafe fn setup_idt() {
 extern "C" fn x86_interrupt_handler(stack_frame: InterruptStackFrame) {
     use crate::engine::{Exception, handle_exception};
 
-    let exception = match stack_frame.interrupt_num {
+    match stack_frame.interrupt_num {
         0 => panic!("Divide by zero: {:?}", stack_frame),
-        4 => Exception::Overflow,
-        5 => Exception::BoundRangeExceeded,
-        6 => Exception::InvalidInstruction,
-        7 => Exception::DeviceNotAvailable,
+        4 => handle_exception(Exception::Overflow, stack_frame.instruction_pointer),
+        5 => handle_exception(Exception::BoundRangeExceeded, stack_frame.instruction_pointer),
+        6 => handle_exception(Exception::InvalidInstruction, stack_frame.instruction_pointer),
+        7 => handle_exception(Exception::DeviceNotAvailable, stack_frame.instruction_pointer),
         8 => panic!("Double fault: {:?}", stack_frame),
-        10 | 11 | 12 | 13 | 14 => Exception::MemoryFault,
-        20 => Exception::Virtualization,
-        30 => Exception::Security,
+        10 | 11 | 12 | 13 | 14 => handle_exception(Exception::MemoryFault, stack_frame.instruction_pointer),
+        20 => handle_exception(Exception::Virtualization, stack_frame.instruction_pointer),
+        30 => handle_exception(Exception::Security, stack_frame.instruction_pointer),
         _ => return
-    };
-    handle_exception(exception);
+    }
 }
