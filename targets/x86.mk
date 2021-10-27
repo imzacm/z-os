@@ -1,0 +1,5 @@
+ARCH := x86
+TARGET_CPU := i686
+TARGET_FORMAT := elf
+RUST_TARGET_NAME := x86-unknown-z_os
+RUST_TARGET := $(RUST_TARGET_NAME).json

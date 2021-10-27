@@ -1,14 +1,14 @@
 #![feature(asm)]
 #![feature(llvm_asm)]
+#![feature(core_intrinsics)]
 #![feature(exclusive_range_pattern)]
 #![deny(clippy::all)]
 #![no_std]
 
 use core::panic::PanicInfo;
 
-mod hardware;
-mod syscalls;
 mod arch;
+mod engine;
 
 #[macro_export]
 macro_rules! kprint {
@@ -21,15 +21,22 @@ macro_rules! kprintln {
     ($($arg:tt)*) => ($crate::kprint!("{}\n", format_args!($($arg)*)));
 }
 
+pub(crate) fn idle() -> ! {
+    loop {
+        engine::poll();
+        arch::idle();
+    }
+}
+
 #[no_mangle]
 extern "C" fn kernel_main() -> ! {
-    arch::init();
     kprintln!("z-os v{}", env!("CARGO_PKG_VERSION"));
-    arch::idle();
+    idle();
 }
 
 #[panic_handler]
 fn panic_handler(info: &PanicInfo) -> ! {
     kprintln!("Kernel panic: {}", info);
+    arch::disable_interrupts();
     arch::idle();
 }
