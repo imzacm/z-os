@@ -1,7 +1,6 @@
 use super::{Ps2Model, Ps2ModelError};
-use crate::engine::human_input::{HumanInput, Key, KeyLocation, KeyModifiers, KeySection, KeyState};
+use crate::engine::{HumanInput, Key, KeyLocation, KeyModifiers, KeySection, KeyState};
 use heapless::spsc::Queue;
-use crate::engine::human_input::Key::S;
 
 /*
 Sections index map:

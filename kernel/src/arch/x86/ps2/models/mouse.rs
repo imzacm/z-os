@@ -1,5 +1,5 @@
 use super::{Ps2Model, Ps2ModelError};
-use crate::engine::human_input::HumanInput;
+use crate::engine::HumanInput;
 use heapless::spsc::Queue;
 
 #[derive(Debug)]

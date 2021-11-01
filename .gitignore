@@ -1,6 +1,5 @@
 .idea/
 target/
-toolchain/
 build/
 dist/
 Cargo.lock

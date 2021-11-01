@@ -1,0 +1,37 @@
+name: Build
+on:
+  - push
+jobs:
+  Build-And-Release:
+    name: Build and release
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build using toolchain
+        uses: imzacm/z-os-toolchain@v0.1.1
+        with:
+          script: make iso
+      - name: Read kernel version
+        run: echo "KERNEL_VERSION=$(awk -F ' = ' '$1 ~ /version/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' Cargo.toml)" >> $GITHUB_ENV
+      - name: Create release
+        id: create_release
+        if: github.ref == 'refs/heads/master'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.KERNEL_VERSION }}
+          release_name: ${{ env.KERNEL_VERSION }}
+          draft: false
+          prerelease: false
+      - name: Upload ISO
+        id: upload-iso
+        if: github.ref == 'refs/heads/master'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/z_os.iso
+          asset_name: z_os.iso
+          asset_content_type: application/octet-stream

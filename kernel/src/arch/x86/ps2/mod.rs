@@ -185,6 +185,6 @@ fn handle_ps2_irq(_irq: crate::engine::Irq) {
     model_lock.push_scancode(scancode).ok();
 
     while let Ok(Some(input)) = model_lock.pop_input() {
-        crate::kprintln!("Keyboard input: {:?}", input);
+        crate::engine::handle_human_input(input);
     }
 }

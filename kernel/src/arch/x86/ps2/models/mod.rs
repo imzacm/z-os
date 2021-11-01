@@ -4,7 +4,7 @@ mod mouse;
 pub use keyboard::KeyboardModel;
 pub use mouse::MouseModel;
 
-use crate::engine::human_input::HumanInput;
+use crate::engine::HumanInput;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum Ps2ModelError {
