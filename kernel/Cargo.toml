@@ -11,3 +11,6 @@ crate-type = ["staticlib"]
 [dependencies]
 spin = "0.9.2"
 conquer-once = { version = "0.3.2", default-features = false }
+heapless = { version = "0.7.7", default-features = false }
+hash32 = "0.2.1"
+hash32-derive = "0.1.1"

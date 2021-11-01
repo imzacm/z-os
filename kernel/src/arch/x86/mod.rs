@@ -3,6 +3,8 @@ mod tty;
 mod gdt;
 mod idt;
 mod pic;
+mod pit_timer;
+mod ps2;
 
 pub(in crate::arch) use port::{Port, io_wait};
 pub(in crate::arch) use idt::InterruptStackFrame;
@@ -30,8 +32,12 @@ extern "C" fn x86_kernel_entry() {
         idt::setup_idt();
         crate::kprintln!("Setting up PIC...");
         pic::setup_pic();
-        crate::kprintln!("Enabling interrupts...");
-        enable_interrupts();
+        crate::kprintln!("Setting up PIT timer...");
+        pit_timer::init_pit_timer();
+        crate::kprintln!("Setting up PS2...");
+        if !ps2::init_ps2() {
+            crate::kprintln!("Failed to initialise PS2 controller");
+        }
     }
 }
 
@@ -50,6 +56,10 @@ pub(in crate::arch) fn get_tty() -> impl core::fmt::Write {
     }
 
     Writer
+}
+
+pub fn clear_tty() {
+    tty::get_tty().lock().clear();
 }
 
 pub fn idle() {

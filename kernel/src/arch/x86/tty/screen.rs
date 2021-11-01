@@ -97,6 +97,19 @@ impl<const WIDTH: usize, const HEIGHT: usize> Screen<WIDTH, HEIGHT> {
         }
     }
 
+    pub fn clear(&mut self) {
+        let blank = ScreenChar {
+            character: b' ',
+            colour: self.colour,
+        };
+        for row in 0..HEIGHT {
+            for column in 0..WIDTH {
+                unsafe { core::ptr::write_volatile(&mut self.buffer.rows[row][column], blank) };
+            }
+        }
+        self.cursor.set_point(0, 0);
+    }
+
     fn write_byte(&mut self, byte: u8, update_cursor: bool) {
         if byte == b'\n' {
             self.new_line(true);

@@ -84,15 +84,10 @@ pub unsafe fn setup_pic() {
 
 #[no_mangle]
 extern "C" fn x86_pic_interrupt_handler(stack_frame: InterruptStackFrame) {
-    use crate::engine::{Interrupt, handle_interrupt};
+    use crate::engine::{Irq, handle_interrupt};
 
-    let interrupt = match stack_frame.interrupt_num {
-        0 => Some(Interrupt::Timer),
-        _ => None
-    };
-    if let Some(interrupt) = interrupt {
-        handle_interrupt(interrupt);
-    }
+    let irq = Irq::new(stack_frame.interrupt_num as u8);
+    handle_interrupt(irq);
 
     unsafe {
         if stack_frame.interrupt_num >= 8 {

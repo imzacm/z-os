@@ -30,7 +30,11 @@ pub(crate) fn idle() -> ! {
 
 #[no_mangle]
 extern "C" fn kernel_main() -> ! {
-    kprintln!("z-os v{}", env!("CARGO_PKG_VERSION"));
+    // arch::clear_tty();
+    // kprintln!("z-os v{}", env!("CARGO_PKG_VERSION"));
+    kprintln!("Enabling interrupts...");
+    arch::enable_interrupts();
+    kprintln!("Initialised");
     idle();
 }
 
