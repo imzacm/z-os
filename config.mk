@@ -3,7 +3,7 @@ ARCH ?= x86
 # Build profile, options are "debug" or "release"
 PROFILE ?= debug
 # Cross-compiler prefix, leave as default if toolchain was built using "setup-toolchain.sh"
-PREFIX ?= ../z-os-toolchain/toolchain/prefix
+PREFIX ?= $(ROOT_DIR)/../z-os-toolchain/toolchain/prefix
 
 DIST_DIR ?= dist
 BUILD_DIR ?= build

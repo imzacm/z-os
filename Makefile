@@ -3,10 +3,6 @@ ROOT_DIR := $(realpath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 include ./config.mk
 include ./targets/config.mk
 
-ifeq (,$(wildcard ./$(PREFIX)))
-	PREFIX := $(ROOT_DIR)/$(PREFIX)
-endif
-
 BUILD_DIR := $(ROOT_DIR)/$(BUILD_DIR)
 DIST_DIR := $(ROOT_DIR)/$(DIST_DIR)
 DIST_ISO := $(DIST_DIR)/z_os.iso
