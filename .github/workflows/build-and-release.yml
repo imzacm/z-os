@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build using toolchain
-        uses: imzacm/z-os-toolchain@v0.1.12
+        uses: imzacm/z-os-toolchain@v0.1.13
         with:
           script: make iso
       - name: Read kernel version
