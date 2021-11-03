@@ -11,6 +11,7 @@ CARGO := cargo
 CC := $(PREFIX)/bin/$(TARGET_CPU)-$(TARGET_FORMAT)-gcc
 LD := $(PREFIX)/bin/$(TARGET_CPU)-$(TARGET_FORMAT)-gcc
 ASM := $(PREFIX)/bin/nasm
+GRUB_MKRESCUE := $(PREFIX)/bin/grub-mkrescue
 
 CARGO_FLAGS := --manifest-path $(ROOT_DIR)/Cargo.toml --target $(RUST_TARGET)
 ifeq ($(PROFILE), release)
@@ -30,16 +31,16 @@ clean:
 iso: $(DIST_ISO)
 
 run: iso
-	@qemu-system-i386 -d int,cpu_reset -cdrom $(DIST_ISO)
+	@qemu-system-i386 -d int,cpu_reset -m 5G -cdrom $(DIST_ISO)
 
 debug: iso
-	@qemu-system-i386 -s -S -d int,cpu_reset -cdrom $(DIST_ISO)
+	@qemu-system-i386 -s -S -d int,cpu_reset -m 5G -cdrom $(DIST_ISO)
 
 $(DIST_DIR):
 	@mkdir -p $@
 	@cp -r $(ROOT_DIR)/sysroot-template $(DIST_DIR)/iso
 
 $(DIST_ISO): $(DIST_DIR) kernel
-	@grub-mkrescue -o $(DIST_ISO) $(DIST_DIR)/iso
+	@$(GRUB_MKRESCUE) -o $(DIST_ISO) $(DIST_DIR)/iso
 
 include ./kernel/Makefile
