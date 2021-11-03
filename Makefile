@@ -41,6 +41,6 @@ $(DIST_DIR):
 	@cp -r $(ROOT_DIR)/sysroot-template $(DIST_DIR)/iso
 
 $(DIST_ISO): $(DIST_DIR) kernel
-	@$(GRUB_MKRESCUE) -o $(DIST_ISO) $(DIST_DIR)/iso
+	@PATH="$(PREFIX)/bin:$(PATH)" $(GRUB_MKRESCUE) -o $(DIST_ISO) $(DIST_DIR)/iso
 
 include ./kernel/Makefile
