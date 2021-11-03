@@ -12,7 +12,7 @@ jobs:
         with:
           script: make iso
       - name: Read kernel version
-        run: echo "KERNEL_VERSION=$(awk -F ' = ' '$1 ~ /version/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' Cargo.toml)" >> $GITHUB_ENV
+        run: echo "KERNEL_VERSION=$(awk -F ' = ' '$1 ~ /version/ { gsub(/[\"]/, "", $2); printf("%s",$2) }' kernel/Cargo.toml)" >> $GITHUB_ENV
       - name: Create release
         id: create_release
         if: github.ref == 'refs/heads/master'
